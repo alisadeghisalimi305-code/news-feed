@@ -1,4 +1,49 @@
 {
-  "channel": "dakke_khabari7",
-  "max_posts": 100
+  "telegram": {
+    "channel": "dakke_khabari7",
+    "max_posts": 100,
+    "interval_hours": 2
+  },
+  "youtube": {
+    "queries": [
+      "ساخت کلیپ رایگان با هوش مصنوعی",
+      "ساخت ویدیو رایگان با هوش مصنوعی",
+      "آموزش ساخت ویدیو با هوش مصنوعی"
+    ],
+    "max_new_per_run": 10,
+    "keep": 30,
+    "days_back": 30,
+    "interval_hours": 12
+  },
+  "divar": {
+    "category": "",
+    "prefix": "موتور",
+    "cities": [
+      { "name": "اهواز", "slug": "ahvaz", "province": "خوزستان" },
+      { "name": "آبادان", "slug": "abadan", "province": "خوزستان" },
+      { "name": "دزفول", "slug": "dezful", "province": "خوزستان" },
+      { "name": "ایلام", "slug": "ilam", "province": "ایلام" },
+      { "name": "کرمانشاه", "slug": "kermanshah", "province": "کرمانشاه" }
+    ],
+    "models": [
+      { "name": "هوندا ۱۲۵", "q": "هوندا 125" },
+      { "name": "پالس", "q": "پالس" },
+      { "name": "آپاچی", "q": "آپاچی" },
+      { "name": "باجاج", "q": "باجاج" }
+    ],
+    "modes": [
+      { "id": "parking", "label": "پارکینگی", "word": "پارکینگی" },
+      { "id": "auction", "label": "مزایده‌ای", "word": "مزایده" },
+      { "id": "any", "label": "بدون قید", "word": "" }
+    ]
+  },
+  "prices": {
+    "product": "PS5 Slim Digital",
+    "query": "پلی استیشن 5 اسلیم دیجیتال",
+    "stores": [
+      { "id": "digikala", "name": "دیجی‌کالا", "url": "https://www.digikala.com/search/?q={q}" },
+      { "id": "torob", "name": "ترب", "url": "https://torob.com/search/?query={q}" },
+      { "id": "basalam", "name": "باسلام", "url": "https://basalam.com/search/all?q={q}" }
+    ]
+  }
 }
