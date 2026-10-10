@@ -2,11 +2,20 @@ name: update-feed
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
-  workflow_dispatch: {}
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run every module now"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-feed
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -17,7 +26,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install beautifulsoup4
-      - run: python fetch.py
+      - name: Build
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          FORCE: ${{ inputs.force && '1' || '0' }}
+        run: python fetch.py
       - name: Commit changes
         run: |
           git config user.name "feed-bot"
