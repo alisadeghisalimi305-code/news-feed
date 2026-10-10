@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>خوراک خبری</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ea; --card:#fffdf8; --ink:#1d1b16; --muted:#7a7468; --line:#e6e0d2;
+  --accent:#c2410c; --accent-soft:#fdeadb; --shadow:0 1px 2px rgba(60,40,10,.06),0 8px 24px rgba(60,40,10,.06);
+}
+:root:not([data-theme="light"]){
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14130f; --card:#1d1b16; --ink:#f1ede3; --muted:#9a9384; --line:#2e2b23;
+    --accent:#fb923c; --accent-soft:#2c1d12; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14130f; --card:#1d1b16; --ink:#f1ede3; --muted:#9a9384; --line:#2e2b23;
+  --accent:#fb923c; --accent-soft:#2c1d12; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Vazirmatn",system-ui,sans-serif;line-height:1.9}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+header{padding:36px 0 18px}
+.kicker{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.02em}
+h1{margin:4px 0 6px;font-size:clamp(26px,6vw,36px);line-height:1.35;font-weight:700}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;margin-inline-end:6px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 14px;display:flex;gap:8px}
+.bar input{flex:1;min-width:0;font:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;outline:none}
+.bar input:focus{border-color:var(--accent)}
+.bar button{font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 14px;cursor:pointer}
+.day{margin:26px 0 10px;color:var(--muted);font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px}
+.day::after{content:"";flex:1;height:1px;background:var(--line)}
+article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
+article.new{border-inline-start:4px solid var(--accent)}
+.text{white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-size:16px}
+.text a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+.foot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12.5px}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--accent)}
+.empty{text-align:center;color:var(--muted);padding:60px 0}
+mark{background:var(--accent-soft);color:inherit;border-radius:4px;padding:0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">خوراک خبری · فقط متن</div>
+    <h1 id="title"></h1>
+    <div class="meta">
+      <span><span class="dot"></span><span id="updated"></span></span>
+      <span id="count"></span>
+      <a id="chlink" style="color:inherit" target="_blank" rel="noopener"></a>
+    </div>
+  </header>
+  <div class="bar">
+    <input id="q" type="search" placeholder="جستجو در خبرها…">
+    <button id="theme" title="تغییر تم">◐</button>
+  </div>
+  <main id="list"></main>
+</div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const fa = (o, d) => new Intl.DateTimeFormat('fa-IR-u-ca-persian', o).format(d);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const linkify = s => s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+const updated = new Date(D.updated);
+document.title = D.title;
+document.getElementById('title').textContent = D.title;
+document.getElementById('updated').textContent = 'آخرین به‌روزرسانی: ' + fa({dateStyle:'medium', timeStyle:'short'}, updated);
+document.getElementById('count').textContent = D.posts.length.toLocaleString('fa-IR') + ' پست';
+const cl = document.getElementById('chlink');
+cl.textContent = '@' + D.channel; cl.href = 'https://t.me/' + D.channel;
+
+function render(filter) {
+  const list = document.getElementById('list');
+  const f = (filter || '').trim();
+  const posts = f ? D.posts.filter(p => p.text.includes(f)) : D.posts;
+  if (!posts.length) { list.innerHTML = '<div class="empty">چیزی پیدا نشد.</div>'; return; }
+  let html = '', lastDay = '';
+  for (const p of posts) {
+    const d = p.date ? new Date(p.date) : null;
+    const day = d ? fa({dateStyle:'full'}, d) : '';
+    if (day !== lastDay) { html += '<div class="day">' + day + '</div>'; lastDay = day; }
+    let t = linkify(esc(p.text));
+    if (f) t = t.split(esc(f)).join('<mark>' + esc(f) + '</mark>');
+    const isNew = d && (updated - d) < 4 * 3600 * 1000;
+    html += '<article' + (isNew ? ' class="new"' : '') + '><div class="text">' + t + '</div>' +
+      '<div class="foot"><span>' + (d ? fa({timeStyle:'short'}, d) : '') + (p.views ? ' · ' + p.views + ' بازدید' : '') +
+      '</span><a href="' + p.url + '" target="_blank" rel="noopener">باز کردن در تلگرام ↗</a></div></article>';
+  }
+  list.innerHTML = html;
+}
+render();
+document.getElementById('q').addEventListener('input', e => render(e.target.value));
+document.getElementById('theme').addEventListener('click', () => {
+  const r = document.documentElement;
+  const dark = getComputedStyle(r).getPropertyValue('--bg').trim() === '#14130f';
+  r.dataset.theme = dark ? 'light' : 'dark';
+});
+setTimeout(() => location.reload(), 30 * 60 * 1000);
+</script>
+</body>
+</html>
